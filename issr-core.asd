@@ -12,4 +12,4 @@ This is the core functionality is reusable for all server modules."
   :depends-on (#:plump
                #:str)
   :components ((:file "package")
-               (:file "hunchenissr" :depends-on ("package"))))
+               (:file "issr-core" :depends-on ("package"))))
