@@ -7,6 +7,7 @@
            :*socket*
            :*first-time*
            :*id*
+           :hash-keys
            :generate-id
            :clean
            :diff-dom))

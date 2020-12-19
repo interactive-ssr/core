@@ -33,11 +33,11 @@ be the same as `(null `socket')'.")
         :collect key))
 
 (defun generate-id (&optional (length 9) &key (not-in (hash-keys clients)))
-  "Genereate a random number that has LENGTH digits and is not a member of NOT-THESE.
+  "Genereate a random number that has LENGTH digits and is not a member of NOT-IN.
 No leading zeros."
   (let ((id (+ (expt 10 (- length 1)) (random (- (expt 10 length) 1)))))
-    (if (member id not-these)
-        (generate-id length not-these)
+    (if (member id not-in)
+        (generate-id length :not-in not-in)
         id)))
 
 (defun clean (node)
