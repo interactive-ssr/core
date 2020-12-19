@@ -1,15 +1,13 @@
-(defpackage hunchenissr
+(defpackage issr-core
   (:use #:cl #:plump)
-  (:export :*clients*
+  (:export :clients
            :on-connect-hook
            :on-disconnect-hook
            :*ws-port*
            :*socket*
            :*first-time*
            :*id*
-           :define-easy-handler
-           :start
-           :stop
-           :redirect
-           :rr))
+           :generate-id
+           :clean
+           :diff-dom))
 
