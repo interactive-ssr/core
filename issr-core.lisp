@@ -32,7 +32,7 @@ be the same as `(null `socket')'.")
   (loop :for key :being :the :hash-keys :of hash-table
         :collect key))
 
-(defun generate-id (&optional (length 9) &key (not-in (hash-keys clients)))
+(defun generate-id (&optional (length 9) &key (not-in (hash-keys -clients-)))
   "Genereate a random number that has LENGTH digits and is not a member of NOT-IN.
 No leading zeros."
   (let ((id (+ (expt 10 (- length 1)) (random (- (expt 10 length) 1)))))
