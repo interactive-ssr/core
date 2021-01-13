@@ -1,14 +1,14 @@
 (in-package #:issr-core)
 
-(defparameter clients (make-hash-table :test 'equalp)
+(define-global-var -clients- (make-hash-table :test 'equalp)
   "Key: socket, Value: (list *request* page).
 Before connecting by websocket, the key is the identifier.")
 
-(defparameter on-connect-hook nil
+(define-global-parameter -on-connect-hook- (list)
   "Run each function in `on-connect-hook' after a socket connects.
 Each function should take one socket as an argument.")
 
-(defparameter on-disconnect-hook nil
+(define-global-parameter -on-disconnect-hook- (list)
   "Run each function in `on-disconnect-hook' before a socket disconnects.
 Each function should take one socket as an argument.")
 

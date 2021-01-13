@@ -14,10 +14,13 @@
                 family
                 serialize
                 text)
+  (:import-from #:global-vars
+                define-global-var
+                define-global-parameter)
   (:export
-   clients
-   on-connect-hook
-   on-disconnect-hook
+   -clients-
+   -on-connect-hook-
+   -on-disconnect-hook-
    *ws-port*
    *socket*
    *first-time*

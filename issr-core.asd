@@ -10,6 +10,7 @@ This is the core functionality is reusable for all server modules."
   :version "1"
   :serial t
   :depends-on (#:plump
+               #:global-vars
                #:str)
   :components ((:file "package")
                (:file "issr-core" :depends-on ("package"))))
