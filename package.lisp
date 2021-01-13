@@ -1,5 +1,19 @@
 (defpackage issr-core
-  (:use #:cl #:plump)
+  (:use #:cl)
+  (:import-from #:plump
+                children
+                remove-child
+                doctype-p
+                text-node-p
+                comment-p
+                element-p
+                has-child-nodes
+                tag-name
+                attributes
+                insert-before
+                family
+                serialize
+                text)
   (:export
    clients
    on-connect-hook
