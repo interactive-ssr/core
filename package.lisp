@@ -10,6 +10,7 @@
                 has-child-nodes
                 tag-name
                 attributes
+                attribute
                 insert-before
                 family
                 serialize
