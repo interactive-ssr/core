@@ -53,6 +53,22 @@ No leading zeros."
                   (clean child))))
   node)
 
+(defun ensure-ids (node)
+  "Ensures that plump dom NODE and all of its subtrees have the id attribute.
+If an element does not have an id attribute, `ensure-ids' mutates it to have one.
+Returns the possibly modified NODE."
+  ;; ensure node has id
+  (when (element-p node)
+    (let ((id (attribute node "id")))
+      (unless id
+        (setf (attribute node "id")
+              (symbol-name (gensym "I"))))))
+  ;; apply to children
+  (when (has-child-nodes node)
+    (loop for child across (children node) do
+      (ensure-ids child)))
+  node)
+
 (defun descendant (node indexes)
   "Return the dom node which is the child of ancestor NODE.
 INDEXES is a list of locations of the children list of NODE."
@@ -65,10 +81,11 @@ INDEXES is a list of locations of the children list of NODE."
 (defun diff-dom (old-dom new-dom
                  ;; only for recursion
                  &optional (index 0) indexes instructions)
-  "Return a list of instructions to update the dom of OLD to look like NEW.
-OLD and NEW should both be plump virtual doms.
+  "Return a list of instructions to update the dom of OLD-DOM to look like NEW-DOM.
+OLD-DOM and NEW-DOM should both be plump virtual doms.
 See issr.js for possible instructions.
-Does not preserve old-dom.
+Does not preserve OLD-DOM.
+Every element in OLD-DOM should have an id attribute.
 
 INDEXES: Reversed list of indexes to reach the current parent.
 INDEX: (aref (children parent) INDEX) to get current node."
@@ -91,18 +108,23 @@ INDEX: (aref (children parent) INDEX) to get current node."
                 (loop for i from index to (- length-children 1)
                       collect
                       (list "insert"
-                            (reverse (if (= i 0) indexes (cons (- i 1) indexes)))
+                            (attribute old-tree "id")
                             0
-                            (if (= i 0) "prepend" "after")
-                            (serialize (aref children i) nil)))))
+                            "append"
+                            (serialize (ensure-ids (aref children i)) nil)))))
          (diff-dom old-dom new-dom length-children indexes
                    (append instructions insert-instructions))))
       ;; remove rest of children from old
       ((>= index (length (children new-tree)))
-       (let* ((length-children (length (children old-tree)))
+       (let* ((children (children old-tree))
+              (length-children (length children))
               (delete-instructions
                 (loop for i from (- length-children 1) downto index
-                      collect (cons "delete" (reverse (cons index indexes))))))
+                      for child = (aref children i)
+                      collect
+                      (if (element-p child)
+                          (list "delete" (attribute child "id"))
+                          (list "delete" (attribute old-tree "id") index)))))
          (diff-dom old-dom new-dom length-children indexes
                    (append instructions delete-instructions))))
       ;;; start comparing the current node
@@ -128,14 +150,18 @@ INDEX: (aref (children parent) INDEX) to get current node."
                           (progn
                             (insert-before old-node nil)   ;add a nil to shift the node array
                             (append instructions
-                                    (list (list "insert" (reverse (cons index indexes)) 1 "before"
+                                    (list (list "insert"
+                                                (attribute (parent old-node) "id")
+                                                1
+                                                "prepend"
                                                 (text new-node))))))))
            ;; add, delete, or replace
            ((or (not (eq (type-of old-node) (type-of new-node)))
                 (string/= (if (element-p old-node) (tag-name old-node) "")
                           (if (element-p new-node) (tag-name new-node) ""))
-                (string/= (gethash "id" (attributes old-node) "")
-                          (gethash "id" (attributes new-node) "")))
+                ;; (string/= (gethash "id" (attributes old-node) "")
+                ;;           (gethash "id" (attributes new-node) ""))
+                )
             (let ((diff-length (- (length (family new-node))
                                   (length (family old-node)))))
               (cond
@@ -145,21 +171,25 @@ INDEX: (aref (children parent) INDEX) to get current node."
                  (remove-child old-node) ;shift siblings
                  (diff-dom old-dom new-dom index indexes
                            (append instructions
-                                   (list (cons "delete" (reverse (cons index indexes)))))))
+                                   (list (list "delete" (attribute old-node "id"))))))
                 ;; add
                 ((or (< 0 diff-length)
                      (attribute old-node "noupdate"))
                  (insert-before old-node nil) ;shift siblings
                  (diff-dom old-dom new-dom (+ index 1) indexes
                            (append instructions
-                                   (list (list "insert" (reverse (cons index indexes)) 0 "before"
-                                               (serialize new-node nil))))))
+                                   (list (list "insert"
+                                               (attribute old-node "id")
+                                               0
+                                               "before"
+                                               (serialize (ensure-ids new-node) nil))))))
                 ;; replace
                 (:else
                  (diff-dom old-dom new-dom (+ index 1) indexes
                            (append instructions
-                                   (list (list "mod" (reverse (cons index indexes))
-                                               (list "outerHTML" (serialize new-node nil))))))))))
+                                   (list (list "mod"
+                                               (attribute old-node "id")
+                                               (list "outerHTML" (serialize (ensure-ids new-node) nil))))))))))
            ;; update attrs then descend into children
            (:else
             (let* ((update (when (element-p new-node)
@@ -167,6 +197,9 @@ INDEX: (aref (children parent) INDEX) to get current node."
                    (new-attrs
                      (when (and (element-p old-node)
                                 (element-p new-node))
+                       ;; id should never change
+                       (setf (attribute new-node "id")
+                             (attribute old-node "id"))
                        (remove-if #'null
                                   (mapcar (lambda (key)
                                             (let ((old-value (gethash key (attributes old-node) ""))
@@ -179,5 +212,5 @@ INDEX: (aref (children parent) INDEX) to get current node."
                                                  :test 'string=))))))
               (diff-dom old-dom new-dom 0 (cons index indexes)
                         (if new-attrs
-                            (append instructions (list (append (list "mod") (list (reverse (cons index indexes))) new-attrs)))
+                            (append instructions (list (append (list "mod" (attribute old-node "id")) new-attrs)))
                             instructions))))))))))

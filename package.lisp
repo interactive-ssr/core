@@ -2,6 +2,7 @@
   (:use #:cl)
   (:import-from #:plump
                 children
+                parent
                 remove-child
                 doctype-p
                 text-node-p
@@ -29,5 +30,6 @@
    hash-keys
    generate-id
    clean
-   diff-dom))
+   diff-dom
+   ensure-ids))
 
