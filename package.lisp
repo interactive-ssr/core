@@ -19,6 +19,8 @@
   (:import-from #:global-vars
                 define-global-var
                 define-global-parameter)
+  (:import-from #:tailrec
+                tailrec)
   (:export
    -clients-
    -on-connect-hook-
