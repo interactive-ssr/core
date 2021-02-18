@@ -7,7 +7,7 @@
 This is the core functionality is reusable for all server modules."
   :author "Charles Jackson <charles.b.jackson@protonmail.com>"
   :license "LLGPL"
-  :version "0"
+  :version "0.1"
   :serial t
   :depends-on (#:plump
                #:global-vars
