@@ -12,6 +12,6 @@ This is the core functionality is reusable for all server modules."
   :depends-on (#:plump
                #:global-vars
                #:str
-               #:tailrec)
+               #:tailrec-llgpl)
   :components ((:file "package")
                (:file "issr-core" :depends-on ("package"))))

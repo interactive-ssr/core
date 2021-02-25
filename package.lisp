@@ -19,7 +19,7 @@
   (:import-from #:global-vars
                 define-global-var
                 define-global-parameter)
-  (:import-from #:tailrec
+  (:import-from #:tailrec-llgpl
                 tailrec)
   (:export
    -clients-
